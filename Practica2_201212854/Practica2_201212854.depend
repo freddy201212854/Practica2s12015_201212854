@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1427873003 source:c:\users\freddy\desktop\practica2\practica2_201212854\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<windows.h>
+
