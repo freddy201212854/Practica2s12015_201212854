@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <windows.h>
+#include    <stdlib.h>
+#include    <string.h>
+#include    <stdio.h>
+#include    <conio.h>
+#include    <time.h>
 
 #define ASCENDENTE 1
 #define DESCENDENTE 0
@@ -9,130 +10,8 @@
 #define FALSE 0
 
 enum {IZQUIERDO, DERECHO};
-
-//--------------------------------------------------------------------------------------------------------------------
-//LISTA DOBLEMENTE ENLZADA
-//--------------------------------------------------------------------------------------------------------------------
-
-typedef struct _nodo {
-   int valor;
-   struct _nodo *siguiente;
-   struct _nodo *anterior;
-} tipoNodo;
-
-typedef tipoNodo *pNodo;
-typedef tipoNodo *Lista;
-
-int contador=0;
-/* Funciones con listas: */
-void Insertar(Lista *l, int v);
-void Borrar(Lista *l, int v);
-
-void BorrarLista(Lista *);
-void MostrarLista(Lista l, int orden);
-void M(Lista l);
-
-void Insertar(Lista *lista, int v) {
-   pNodo nuevo, actual;
-
-   /* Crear un nodo nuevo */
-   nuevo = (pNodo)malloc(sizeof(tipoNodo));
-   nuevo->valor = v;
-
-   /* Colocamos actual en la primera posición de la lista */
-   actual = *lista;
-   if(actual) while(actual->anterior) actual = actual->anterior;
-   /* Si la lista está vacía o el primer miembro es mayor que el nuevo */
-   if(!actual) {
-      /* Añadimos la lista a continuación del nuevo nodo */
-      nuevo->siguiente = actual;
-      nuevo->anterior = NULL;
-      if(actual) actual->anterior = nuevo;
-      if(!*lista) *lista = nuevo;
-   }
-   else {
-      /* Avanzamos hasta el último elemento o hasta que el siguiente tenga
-         un valor mayor que v */
-      while(actual->siguiente)
-         actual = actual->siguiente;
-      /* Insertamos el nuevo nodo después del nodo anterior */
-      nuevo->siguiente = actual->siguiente;
-      actual->siguiente = nuevo;
-      nuevo->anterior = actual;
-      if(nuevo->siguiente) nuevo->siguiente->anterior = nuevo;
-   }
-   contador++;
-}
-
-void Borrar(Lista *lista, int v) {
-   pNodo nodo;
-
-   /* Buscar el nodo de valor v */
-   nodo = *lista;
-   while(nodo && nodo->valor < v) nodo = nodo->siguiente;
-   while(nodo && nodo->valor > v) nodo = nodo->anterior;
-
-   /* El valor v no está en la lista */
-   if(!nodo || nodo->valor != v) return;
-
-   /* Borrar el nodo */
-   /* Si lista apunta al nodo que queremos borrar, apuntar a otro */
-   if(nodo == *lista)
-     if(nodo->anterior) *lista = nodo->anterior;
-     else *lista = nodo->siguiente;
-
-   if(nodo->anterior) /* no es el primer elemento */
-      nodo->anterior->siguiente = nodo->siguiente;
-   if(nodo->siguiente) /* no es el último nodo */
-      nodo->siguiente->anterior = nodo->anterior;
-   free(nodo);
-}
-
-void BorrarLista(Lista *lista) {
-   pNodo nodo, actual;
-
-   actual = *lista;
-   while(actual->anterior) actual = actual->anterior;
-
-   while(actual) {
-      nodo = actual;
-      actual = actual->siguiente;
-      free(nodo);
-   }
-   *lista = NULL;
-}
-
-void MostrarLista(Lista lista, int orden) {
-   pNodo nodo = lista;
-
-   if(!lista) printf("Lista vacía");
-
-   nodo = lista;
-   if(orden == ASCENDENTE) {
-      while(nodo->anterior) nodo = nodo->anterior;
-      printf("Orden ascendente: ");
-      while(nodo) {
-         printf("%d -> ", nodo->valor);
-         nodo = nodo->siguiente;
-      }
-   }
-   else {
-      while(nodo->siguiente) nodo = nodo->siguiente;
-      printf("Orden descendente: ");
-      while(nodo) {
-         printf("%d -> ", nodo->valor);
-         nodo = nodo->anterior;
-      }
-   }
-
-   printf("\n");
-}
 //--------------------------------------------------------------------------------------------------------------
-//FIN LISTA DOBLEMENTE ENLAZADA
-//--------------------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------------------
-//ARBOL BINARIO AVL
+//INICIO DE ARBOL AVL
 //--------------------------------------------------------------------------------------------------------------
 typedef struct nodo {
    int dato;
@@ -179,6 +58,7 @@ void auxContador(Arbol a, int*);
 void auxAltura(Arbol a, int, int*);
 
 void Mostrar(int *d);
+void Mostrar2(int *d);
 
 /* Poda: borrar todos los nodos a partir de uno, incluido */
 void Podar(Arbol *a)
@@ -583,64 +463,168 @@ int EsHoja(pNodos r)
 {
    return !r->derecho && !r->izquierdo;
 }
-
 /* Función de prueba para recorridos del árbol */
 void Mostrar(int *d)
 {
-   printf("%d, ", *d);
+   //printf("%d,",*d);
 }
-
+void Mostrar2(int *d)
+{
+   printf("%d,",*d);
+}
+void InOr(Arbol a)
+{
+    InOrden(a,Mostrar2);
+}
 //--------------------------------------------------------------------------------------------------------------
 //FIN ARBOL BINARIO AVL
 //--------------------------------------------------------------------------------------------------------------
 
-int main() {
-
-  clock_t ini, fin;
-  double segundos;
-  ini = clock();
+int *vector,*vector2;
+int contador=0;
+double quicksort=0.0;
+int main()
+{
+   clock_t start,stop;
 
    Arbol ArbolInt=NULL;
-   Lista lista = NULL;
-   pNodo p;
 
-   int num=0,i=0;
-   char aux[100];
-   FILE *f;
+   int i,cont=0,num,numArbol;
+   start=clock();
 
+   char aux[100],aux2[100];
+   FILE *f,*f2;
    f=fopen("C:/Users/freddy/Desktop/Datos.txt","r");
-   if(f==NULL)
+   f2=fopen("C:/Users/freddy/Desktop/Datos.txt","r");
+
+   if(f==NULL || f2==NULL)
    {
        printf("No se ha podidio abrir el fichero.\n");
        exit(1);
    }
+
    while(!feof(f)){
      fgets(aux,100,f);
-     num=atoi(aux);
-     //printf("\n%d",num);
-     Insertar(&lista,num);
-     InsertarArbol(&ArbolInt,num);
-     for(i=0;i<100;i++)
-     {
-         aux[i]=' ';
-     }
+     numArbol=atoi(aux);
+     InsertarArbol(&ArbolInt,numArbol);
+     contador++;
+
    }
    fclose(f);
-   fin = clock();
-   segundos = (double)(fin - ini) / CLOCKS_PER_SEC;
-   printf("Insercion en Arbol: %f \n", segundos);
-   //MostrarLista(lista, ASCENDENTE);
 
-   clock_t t_ini, t_fin;
-   double secs;
-   t_ini = clock();
-   InOrden(ArbolInt,Mostrar);
-   t_fin = clock();
-   secs = (double)(t_fin - t_ini) / CLOCKS_PER_SEC;
-   printf("\n Recorrido en Orden: %f \n", secs);
+   stop=clock();
+   double seg=(double)(stop-start)/CLOCKS_PER_SEC;
 
+   vector=(int*)malloc(contador*sizeof(int));
+   vector2=(int*)malloc(contador*sizeof(int));
+
+   while(!feof(f2)){
+     fgets(aux2,100,f2);
+     num=atoi(aux2);
+     vector[cont]=num;
+     vector2[cont]=num;
+     cont++;
+     for(i=0;i<100;i++)
+     {
+         aux2[i]=' ';
+     }
+
+   }
+   fclose(f2);
+
+
+   clock_t starRecorrido,stopRecorrido;
+   double segRecorrido;
+
+   starRecorrido=clock();
+   InOr(ArbolInt);
+   stopRecorrido=clock();
+   segRecorrido=(double)(stopRecorrido-starRecorrido)/CLOCKS_PER_SEC;
+
+   clock_t startBurbuja,stopBurbuja;
+   double segBurbuja;
+   startBurbuja=clock();
+   Burbuja();
+   stopBurbuja=clock();
+   segBurbuja=(double)(stopBurbuja-startBurbuja)/CLOCKS_PER_SEC;
+
+   clock_t startQuicksort,stopQuicksort;
+   double segQuicksort;
+   startQuicksort=clock();
+   ordena(0,contador-1);
+   stopQuicksort=clock();
+   segQuicksort=(double)(stopQuicksort-startQuicksort)/CLOCKS_PER_SEC;
+
+   printf("\n");
    system("pause");
-   return 0;
+
+   printf("\nIngresar Arbol %f seconds\n",seg);
+   printf("Recorrido Arbol %f seconds\n",segRecorrido);
+   printf("Ordenado Burbuja %f seconds\n",segBurbuja);
+   printf("Ordenado Quicksort %f seconds",segQuicksort);
+  /*int j=0;
+  for(j=0;j<contador;j++)
+  {
+      printf("%i,",vector2[j]);
+  }*/
+  free(vector);
+  free(vector2);
+   printf("\n");
+   system("pause");
+  return 0;
+}
+void Burbuja()
+{
+   int i,j,temp;
+
+	for(i=0;i<contador;i++) //Entramos en la tabla
+	{
+		for(j=i;j<contador;j++)
+		{
+			if(vector[i]>vector[j]) //si nos encontramos un caracter que es mayor que el siguiente debemos intercambiarlos para ordenarlos de menor a mayor
+			{
+				temp=vector[i];
+				vector[i]=vector[j];
+				vector[j]=temp;
+			}
+		}
+	}
 }
 
+void ordena(int izq, int der ){
+   /* clock_t t_in, t_fi;
+    t_in = clock();*/
+    int i = 0, j = 0;
+    int x = 0, aux = 0;
+    i = izq;
+    j = der;
+    x = vector2[(izq + der) /2 ];
 
+    do{
+        while((vector2[i] < x) && (j <= der) ){
+            i++;
+        }
+        while( (x <vector2[j]) && (j > izq) ){
+                j--;
+        }
+                if( i <= j ){
+                    aux = vector2[i];
+                    vector2[i] = vector2[j];
+                    vector2[j] = aux;
+                    i++;  j--;
+                }
+      }while( i <= j );
+
+
+            if( izq < j ){
+                ordena(izq, j );
+            }
+            if( i < der ){
+                ordena(i, der );
+            }
+
+    /*t_fi = clock();
+    quicksort= (double)(t_fi - t_in) / CLOCKS_PER_SEC;
+   // printf("\nOrdenado Quicksort: %f \n",quicksort);
+*/
+}
